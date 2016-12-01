@@ -23,6 +23,9 @@ let calculateManhattanDistance (x, y) =
 let trim (s:string) =
     s.Trim()
 
+let split c (s:string) =
+    s.Split([| c |])
+
 [<EntryPoint>]
 let main argv = 
 
@@ -38,9 +41,10 @@ let main argv =
 
     let startPosition = (0,1), (0,0)
 
-    let result = argv.[0].Split([| ',' |]) 
-                        |> Array.map (trim >> parseMovement)
-                        |> Array.fold reduce startPosition
-                        |> snd
-                        |> calculateManhattanDistance
+    let result = argv.[0]
+                    |> split ','
+                    |> Array.map (trim >> parseMovement)
+                    |> Array.fold reduce startPosition
+                    |> snd
+                    |> calculateManhattanDistance
     0
