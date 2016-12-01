@@ -20,6 +20,9 @@ let reduce (d, l) m  =
 let calculateManhattanDistance (x, y) =
     (abs x) + (abs y)
 
+let trim (s:string) =
+    s.Trim()
+
 [<EntryPoint>]
 let main argv = 
 
@@ -33,10 +36,11 @@ let main argv =
             | _ -> failwith "Cannot parse movement"
         | _ -> failwith "Cannot parse movement"
 
+    let startPosition = (0,1), (0,0)
+
     let result = argv.[0].Split([| ',' |]) 
-                        |> Array.map (fun s -> s.Trim())
-                        |> Array.map (fun s -> parseMovement s)
-                        |> Array.fold reduce ((0, 1), (0, 0))
+                        |> Array.map (trim >> parseMovement)
+                        |> Array.fold reduce startPosition
                         |> snd
                         |> calculateManhattanDistance
     0
