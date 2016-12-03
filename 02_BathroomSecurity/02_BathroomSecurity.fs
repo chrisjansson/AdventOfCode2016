@@ -1,8 +1,3 @@
-let input = "ULL
-RRDDD
-LURDL
-UUUUD"
-
 let splitLines (s:string) =
     s.Split([| System.Environment.NewLine |], System.StringSplitOptions.RemoveEmptyEntries)
 
@@ -33,12 +28,12 @@ let reduceButtonSequence s start =
     s |> Seq.fold fold start
 
 let reduceButtonSequences s =
-    let initialState = [], (1,1)
-    let fold (buttons, pos) buttonSequence =
+    let fold buttons buttonSequence =
+        let pos = List.head buttons
         let newPos = reduceButtonSequence buttonSequence pos
-        newPos :: buttons, newPos
-    s |> Seq.fold fold initialState |> fst |> Seq.rev 
-    
+        newPos :: buttons
+    let initialState = [(1,1)] 
+    s |> Seq.fold fold initialState |> Seq.rev 
 
 let translateToButton (x,y) =
     (y * 3 + x) + 1
@@ -47,9 +42,9 @@ let translateToButton (x,y) =
 let main argv =
     
     let result = argv.[0] |> splitLines
-                            |> Array.map parseButtonSequence
-                            |> reduceButtonSequences
-                            |> Seq.map translateToButton
+                        |> Array.map parseButtonSequence
+                        |> reduceButtonSequences
+                        |> Seq.map translateToButton
     
     for k in result do
         printf "%A" k
