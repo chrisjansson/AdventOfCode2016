@@ -34,22 +34,25 @@ let clamp min max value =
     else 
         value
 
-let clampTuple keypad (x, y) =
+let clampTuple keypad old (x, y) =
     let maxx = (Array2D.length1 keypad) - 1
     let maxy = (Array2D.length2 keypad) - 1
-    (clamp 0 maxx x), (clamp 0 maxy y)
-
+    let cx, cy = (clamp 0 maxx x), (clamp 0 maxy y)
+    if keypad.[cy, cx] = '-' then
+        old
+    else 
+        cx, cy
 let add (x1, y1) (x2, y2) = (x1 + x2, y1 + y2)
 
-let reduceButtonSequence s start =
+let reduceButtonSequence keypad s start =
     let fold s m =
-        add s m |> clampTuple (array2D keypad)
+        add s m |> clampTuple keypad s
     s |> Seq.fold fold start
 
-let reduceButtonSequences s =
+let reduceButtonSequences keypad s =
     let fold buttons buttonSequence =
         let pos = List.head buttons
-        let newPos = reduceButtonSequence buttonSequence pos
+        let newPos = reduceButtonSequence keypad buttonSequence pos
         newPos :: buttons
     let initialState = [(1,1)] 
     s |> Seq.fold fold initialState |> Seq.rev 
@@ -62,10 +65,18 @@ let main argv =
 
     let result = argv.[0] |> splitLines
                         |> Array.map parseButtonSequence
-                        |> reduceButtonSequences
+                        |> reduceButtonSequences (array2D keypad)
                         |> Seq.skip 1
                         |> Seq.map (translateToButton (array2D keypad))
                         |> (fun s -> System.String.Concat(Array.ofSeq s))
+
+    let result2 = argv.[0] |> splitLines
+                        |> Array.map parseButtonSequence
+                        |> reduceButtonSequences (array2D keypad2)
+                        |> Seq.skip 1
+                        |> Seq.map (translateToButton (array2D keypad2))
+                        |> (fun s -> System.String.Concat(Array.ofSeq s))
     
     printfn "%A" result
+    printfn "%A" result2
     0
