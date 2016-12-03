@@ -1,3 +1,17 @@
+let keypad = [
+        [| '1'; '2'; '3'; |]
+        [| '4'; '5'; '6'; |]
+        [| '7'; '8'; '9'; |]
+    ]
+
+let keypad2 = [
+        [| '-'; '-'; '1'; '-'; '-' |]
+        [| '-'; '2'; '3'; '4'; '-' |]
+        [| '5'; '6'; '7'; '8'; '9' |]
+        [| '-'; 'A'; 'B'; 'C'; '-' |]
+        [| '-'; '-'; 'D'; '-'; '-' |]
+    ]
+
 let splitLines (s:string) =
     s.Split([| System.Environment.NewLine |], System.StringSplitOptions.RemoveEmptyEntries)
 
@@ -11,6 +25,7 @@ let parseButtonSequence sequence =
         | _ -> failwith "unrecognized movement"
 
     sequence |> Seq.map parseMovement
+
 let clamp min max value =
     if value < min then
         min
@@ -18,13 +33,17 @@ let clamp min max value =
         max
     else 
         value
-let clampTuple (minx, miny) (maxx, maxy) (x, y) =
-    (clamp minx maxx x, clamp miny maxy y)
+
+let clampTuple keypad (x, y) =
+    let maxx = (Array2D.length1 keypad) - 1
+    let maxy = (Array2D.length2 keypad) - 1
+    (clamp 0 maxx x), (clamp 0 maxy y)
+
 let add (x1, y1) (x2, y2) = (x1 + x2, y1 + y2)
 
 let reduceButtonSequence s start =
     let fold s m =
-        add s m |> clampTuple (0, 0) (2, 2)
+        add s m |> clampTuple (array2D keypad)
     s |> Seq.fold fold start
 
 let reduceButtonSequences s =
@@ -35,17 +54,18 @@ let reduceButtonSequences s =
     let initialState = [(1,1)] 
     s |> Seq.fold fold initialState |> Seq.rev 
 
-let translateToButton (x,y) =
-    (y * 3 + x) + 1
+let translateToButton (keypad:_[,]) (x,y) =
+    keypad.[y, x]
 
 [<EntryPoint>]
 let main argv =
-    
+
     let result = argv.[0] |> splitLines
                         |> Array.map parseButtonSequence
                         |> reduceButtonSequences
-                        |> Seq.map translateToButton
+                        |> Seq.skip 1
+                        |> Seq.map (translateToButton (array2D keypad))
+                        |> (fun s -> System.String.Concat(Array.ofSeq s))
     
-    for k in result do
-        printf "%A" k
+    printfn "%A" result
     0
