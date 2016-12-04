@@ -9,5 +9,5 @@ let main argv =
 
     let solver = puzzleSolvers.[argv.[0]]
     for line in (argv.[1] |> solver) do
-        printfn "%A" line
+        printfn "%s" line
     0

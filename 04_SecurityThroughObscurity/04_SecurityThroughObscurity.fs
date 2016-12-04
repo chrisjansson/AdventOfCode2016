@@ -23,13 +23,29 @@ let isValidRoom (roomLetters : string seq, _, checksum : string) =
         |> Seq.take 5
         |> Seq.forall (fun (checksumChar, (k,_)) -> checksumChar = k)
 
+let rot c times =
+    let alphabet = [| 'a'..'z' |]
+    let pos = Array.findIndex (fun l -> c = l) alphabet
+    alphabet.[(pos + times) % alphabet.Length]
+
+let rotateString (s:string) times =
+    System.String.Join("", (s |> Seq.map (fun c -> rot c times) |> Seq.toArray))
+
+let rotateRoomName parts times = 
+    System.String.Join("-", parts |> Seq.map (fun s -> rotateString s times)) + (sprintf "-%A" times)
+
 let main input =
     let result = input 
                     |> splitLines
                     |> Array.map parseRoom
                     |> Array.filter isValidRoom
-                    |> Array.map (fun (_, number, _) -> number)
+                    |> Array.map (fun (roomName, number, _) -> number)
                     |> Array.sum 
-    [
-        sprintf "%A" result
-    ]
+
+    let result2 = input 
+                    |> splitLines
+                    |> Array.map parseRoom
+                    |> Array.filter isValidRoom
+                    |> Array.map (fun (roomName, number, _) -> rotateRoomName roomName number)
+                    |> Array.toList
+    result2 @ [ (sprintf "%A" result) ]
