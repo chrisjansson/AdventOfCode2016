@@ -1,4 +1,12 @@
 [<EntryPoint>]
 let main argv =
-    printfn "%A" argv
-    0 // return an integer exit code
+    let puzzleSolvers = 
+        Map.empty.
+            Add("01", NoTimeForATaxicab.main).
+            Add("02", BathroomSecurity.main).
+            Add("03", SquaresWithTreeSides.main)
+
+    let solver = puzzleSolvers.[argv.[0]]
+    for line in (argv.[1] |> solver) do
+        printfn "%A" line
+    0

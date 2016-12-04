@@ -1,3 +1,5 @@
+module SquaresWithTreeSides
+
 let splitLines (s:string) = s.Split([| System.Environment.NewLine |], System.StringSplitOptions.RemoveEmptyEntries)
 
 let split (s:string) = s.Split([|' '|], System.StringSplitOptions.RemoveEmptyEntries)
@@ -11,12 +13,12 @@ let isValidTriangle sides =
     | [| s1; s2; s3 |] -> (s1 + s2) > s3 && (s2 + s3) > s1 && (s3 + s1) > s2
     | _ -> failwith "Not a triangle"
 
-[<EntryPoint>]
-let main argv =
-    let result = argv.[0] |> splitLines
+let main input =
+    let result = input |> splitLines
                             |> Array.map split
                             |> Array.map parseTriangleSides
                             |> Array.map isValidTriangle
                             |> Array.filter (fun isValid -> isValid)
-    printfn "%A" result.Length
-    0
+    [
+        sprintf "%A" result.Length
+    ]

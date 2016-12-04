@@ -1,3 +1,5 @@
+module BathroomSecurity
+
 let keypad = [
         [| '1'; '2'; '3'; |]
         [| '4'; '5'; '6'; |]
@@ -60,23 +62,24 @@ let reduceButtonSequences keypad s =
 let translateToButton (keypad:_[,]) (x,y) =
     keypad.[y, x]
 
-[<EntryPoint>]
-let main argv =
+let main input =
 
-    let result = argv.[0] |> splitLines
+    let result = input |> splitLines
                         |> Array.map parseButtonSequence
                         |> reduceButtonSequences (array2D keypad)
                         |> Seq.skip 1
                         |> Seq.map (translateToButton (array2D keypad))
                         |> (fun s -> System.String.Concat(Array.ofSeq s))
 
-    let result2 = argv.[0] |> splitLines
+    let result2 = input |> splitLines
                         |> Array.map parseButtonSequence
                         |> reduceButtonSequences (array2D keypad2)
                         |> Seq.skip 1
                         |> Seq.map (translateToButton (array2D keypad2))
                         |> (fun s -> System.String.Concat(Array.ofSeq s))
     
-    printfn "%A" result
-    printfn "%A" result2
-    0
+    [
+        sprintf "%A" result
+        sprintf "%A" result2
+    ]
+

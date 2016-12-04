@@ -1,4 +1,6 @@
-﻿let rotate (direction, distance) d =
+﻿module NoTimeForATaxicab
+
+let rotate (direction, distance) d =
     let directions = [| (0, 1) ; (1, 0); (0, -1); (-1, 0) |]
     let index = Array.findIndex (fun dir -> dir = d) directions
     directions.[(index + direction + directions.Length) % (directions.Length)]
@@ -66,9 +68,7 @@ let pathingReducer s m =
         let ls, dl = newLocations |> List.fold reduceLocal (s.Locations, s.FirstDoubleLocation)
         { FirstDoubleLocation = dl; Locations = ls; State = (newDir, newLoc) }
 
-
-[<EntryPoint>]
-let main argv = 
+let main input =
 
     let parseMovement (movementInput:string) =
         match (movementInput.[0], movementInput.[1..]) with
@@ -87,12 +87,13 @@ let main argv =
             State = startPosition
         }
 
-    let result = argv.[0]
+    let result = input
                     |> split ','
                     |> Array.map (trim >> parseMovement)
                     |> Array.fold pathingReducer initialState
 
-    printfn "Distance: %A" (result.State |> snd |> calculateManhattanDistance)
-    printfn "First doubly visied location: %A" result.FirstDoubleLocation
-    printfn "Distance to first doubly visited location: %A" (result.FirstDoubleLocation.Value |> calculateManhattanDistance)
-    0
+    [
+        sprintf "Distance: %A" (result.State |> snd |> calculateManhattanDistance)
+        sprintf "First doubly visied location: %A" result.FirstDoubleLocation
+        sprintf "Distance to first doubly visited location: %A" (result.FirstDoubleLocation.Value |> calculateManhattanDistance)
+    ]
