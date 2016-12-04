@@ -1,0 +1,35 @@
+module SecurityThroughObscurity
+
+let splitLines (s:string) = s.Split([| System.Environment.NewLine |], System.StringSplitOptions.RemoveEmptyEntries)
+
+let split (c:char) (s:string) = s.Split([|c|], System.StringSplitOptions.RemoveEmptyEntries)
+
+let parseRoom roomString =
+    match split '[' roomString with
+    | [| roomPart; checksumPart |] ->
+         let roomSplit = split '-' roomPart
+         let roomLetters = roomSplit.[0..(roomSplit.Length - 2)]
+         let roomNumber = roomSplit.[roomSplit.Length - 1] |> int
+         let [| checksum |] = split ']' checksumPart
+         (roomLetters, roomNumber, checksum)
+    | _ -> failwith "Invalid room string"
+
+let isValidRoom (roomLetters : string seq, _, checksum : string) = 
+    System.String.Concat(roomLetters)
+        |> Seq.groupBy id
+        |> Seq.sortBy (fun (k, _) -> k)
+        |> Seq.sortByDescending (fun (_,seq) -> Seq.length seq)
+        |> Seq.zip checksum
+        |> Seq.take 5
+        |> Seq.forall (fun (checksumChar, (k,_)) -> checksumChar = k)
+
+let main input =
+    let result = input 
+                    |> splitLines
+                    |> Array.map parseRoom
+                    |> Array.filter isValidRoom
+                    |> Array.map (fun (_, number, _) -> number)
+                    |> Array.sum 
+    [
+        sprintf "%A" result
+    ]
