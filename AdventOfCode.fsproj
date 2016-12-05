@@ -39,10 +39,12 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common.fs" />
     <Compile Include="01_NoTimeForATaxicab/01_NoTimeForATaxicab.fs" />
     <Compile Include="02_BathroomSecurity/02_BathroomSecurity.fs" />
     <Compile Include="03_SquaresWithThreeSides/03_SquaresWithThreeSides.fs" />
     <Compile Include="04_SecurityThroughObscurity/04_SecurityThroughObscurity.fs" />
+    <Compile Include="05_HowAboutaNiceGameofChess/05_HowAboutaNiceGameofChess.fs" />
     <Compile Include="Program.fs" />
     <None Include="App.config" />
   </ItemGroup>
