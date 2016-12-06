@@ -9,16 +9,6 @@ let inline private  hash (s:string) =
 let inline private isInteresting (bytes:byte array) =
     bytes.[0] = 0uy && bytes.[1] = 0uy && (bytes.[2] &&& 0xF0uy) = 0uy 
 
-// let calculateHash s = seq {
-//         let mutable count = 0
-//         while count < 8 do
-//             for i = 0 to System.Int32.MaxValue do
-//                 let hashed = (s + i.ToString(System.Globalization.CultureInfo.InvariantCulture)) |> hash
-//                 if (hashed |> isInteresting) then
-//                     yield (i, hashed)
-//                     count <- count + 1
-//     }
-
 let calculateHash s = 
     let rec calculateHashPrivate (i, c, acc) =
         if c >= 8 then
