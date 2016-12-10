@@ -8,3 +8,6 @@ let split (c:char) (s:string) = s.Split([|c|], System.StringSplitOptions.RemoveE
 
 let trim (s:string) =
     s.Trim()
+
+let partition predicate sequence =
+    (Seq.filter predicate sequence, Seq.filter (predicate >> not) sequence)
