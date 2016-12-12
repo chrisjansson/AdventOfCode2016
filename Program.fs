@@ -8,7 +8,8 @@ let main argv =
             Add("04", SecurityThroughObscurity.main).
             Add("05", HowAboutaNiceGameofChess.main).
             Add("06", SignalsAndNoise.main).
-            Add("07", InternetProtocolVersion7.main)
+            Add("07", InternetProtocolVersion7.main).
+            Add("12", LeonardosMonorail.main)
 
     let solver = puzzleSolvers.[argv.[0]]
     for line in (argv.[1] |> solver) do

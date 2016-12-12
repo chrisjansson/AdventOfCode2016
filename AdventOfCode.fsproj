@@ -47,6 +47,7 @@
     <Compile Include="05_HowAboutaNiceGameofChess/05_HowAboutaNiceGameofChess.fs" />
     <Compile Include="06_SignalsAndNoise/06_SignalsAndNoise.fs" />
     <Compile Include="07_InternetProtocolVersion7.fs" />
+    <Compile Include="12_LeonardosMonorail.fs" />
     <Compile Include="Program.fs" />
     <None Include="App.config" />
   </ItemGroup>
