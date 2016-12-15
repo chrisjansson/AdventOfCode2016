@@ -34,16 +34,38 @@ let ``Fails parsing empty string``() =
 
 module Operators =
 
-let compose p0 p1 s =
-    let r, rem = match p0 s with | Ok (r, rem) -> (r, rem)
-    let r2,rem2 = match p1 rem with | Ok (r, rem) -> (r, rem)
-    Ok ((r, r2), rem2)
+    let compose p0 p1 s =
+        match p0 s with
+        | Ok (result, remaining) ->
+            match p1 remaining with
+            | Ok (result2, remaining2) ->
+                Ok ((result, result2), remaining2)
+            | Error m -> Error m
+        | Error m -> Error m
 
-[<Fact>]
-let ``Combines the result of two parsers``() =
-    let p0 = pChar 'a'
-    let p1 = pChar 'b'
-    let parser = compose p0 p1
-    let result = parser "abc"
-    let expected = Ok (('a', 'b'), "c")
-    Assert.Equal(expected, result)
+    [<Fact>]
+    let ``Combines the result of two parsers``() =
+        let p0 = pChar 'a'
+        let p1 = pChar 'b'
+        let parser = compose p0 p1
+        let result = parser "abc"
+        let expected = Ok (('a', 'b'), "c")
+        Assert.Equal(expected, result)
+
+    [<Fact>]
+    let ``Fails when the first parser fails`` () =
+        let p0 = pChar 'a'
+        let p1 = pChar 'b'
+        let parser = compose p0 p1
+        let result = parser "dbc"
+        let expected = Error "dbc"
+        Assert.Equal(expected, result)
+
+    [<Fact>]
+    let ``Fails when the second parser fails`` () =
+        let p0 = pChar 'a'
+        let p1 = pChar 'b'
+        let parser = compose p0 p1
+        let result = parser "adc"
+        let expected = Error "dc"
+        Assert.Equal(expected, result)
