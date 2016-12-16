@@ -45,10 +45,10 @@ module Operators =
 
     let compose p0 p1 s =
         match run p0 s with
-        | Ok (result, remaining) ->
-            match run p1 remaining with
+        | Ok (result1, remaining1) ->
+            match run p1 remaining1 with
             | Ok (result2, remaining2) ->
-                Ok ((result, result2), remaining2)
+                Ok ((result1, result2), remaining2)
             | Error m -> Error m
         | Error m -> Error m
 
