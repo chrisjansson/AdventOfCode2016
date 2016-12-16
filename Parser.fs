@@ -2,33 +2,42 @@ module Parser
 
 open Xunit
 
-let pChar char (s:string) =
-    if System.String.IsNullOrEmpty(s) then
-        Error ""
-    else if s.[0] = char then
-        let remaining = s.[1..]
-        Ok (char, remaining)
-    else
-        Error s
+type Parser<'T> = Parser of (string -> Result<'T * string, string>)
+
+let run p s =
+    let (Parser fn) = p
+    fn s
+
+let pChar char =
+    let innerFn s =
+        if System.String.IsNullOrEmpty(s) then
+            Error ""
+        else if s.[0] = char then
+            let remaining = s.[1..]
+            Ok (char, remaining)
+        else
+            Error s
+    Parser innerFn
     
+
 
 [<Fact>]
 let ``Parses single character``() =
-    let result = pChar 'a' "abc"
+    let result = run (pChar 'a') "abc"
     let expected = Ok ('a', "bc")
     Assert.Equal(expected, result)
 
 
 [<Fact>]
 let ``Fails parsing non matching charater``() =
-    let result = pChar 'x' "abc"
+    let result = run (pChar 'x') "abc"
     let expected = Error "abc"
     Assert.Equal(expected, result)
 
 
 [<Fact>]
 let ``Fails parsing empty string``() =
-    let result = pChar 'x' ""
+    let result = run (pChar 'x') ""
     let expected = Error ("")
     Assert.Equal(expected, result)
 
