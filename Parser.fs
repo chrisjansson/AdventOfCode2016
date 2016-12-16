@@ -44,9 +44,9 @@ let ``Fails parsing empty string``() =
 module Operators =
 
     let compose p0 p1 s =
-        match p0 s with
+        match run p0 s with
         | Ok (result, remaining) ->
-            match p1 remaining with
+            match run p1 remaining with
             | Ok (result2, remaining2) ->
                 Ok ((result, result2), remaining2)
             | Error m -> Error m
