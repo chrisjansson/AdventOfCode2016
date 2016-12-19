@@ -52,11 +52,19 @@ module Combinators =
             | Error m -> Error m
         | Error m -> Error m
 
-    let composeOr (p0:Parser<'T>) (p1:Parser<'T>) s =
+    let composeOr p0 p1 s =
         match run p0 s with
         | Error _ -> 
             run p1 s
         | r -> r
+    
+    let composeOrList parsers s =
+        let rec inner acc parsers =
+            match parsers with
+            | [] -> acc
+            | parser :: tail -> inner (composeOr acc parser) tail
+        inner (List.head parsers) (List.tail parsers)
+        
 
     module Tests =
         
