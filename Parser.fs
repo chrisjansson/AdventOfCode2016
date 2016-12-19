@@ -52,7 +52,6 @@ module Combinators =
             | Error m -> Error m
         | Error m -> Error m
 
-
     let composeOr (p0:Parser<'T>) (p1:Parser<'T>) s =
         match run p0 s with
         | Error _ -> 
@@ -61,58 +60,47 @@ module Combinators =
 
     module Tests =
         
+        let private parseA = pChar 'a'
+        let private parseB = pChar 'b'
+
         [<Fact>]
         let ``Combines the result of two parsers``() =
-            let p0 = pChar 'a'
-            let p1 = pChar 'b'
-            let parser = composeAnd p0 p1
+            let parser = composeAnd parseA parseB
             let result = parser "abc"
             let expected = Ok (('a', 'b'), "c")
             Assert.Equal(expected, result)
 
         [<Fact>]
         let ``Fails when the first parser fails`` () =
-            let p0 = pChar 'a'
-            let p1 = pChar 'b'
-            let parser = composeAnd p0 p1
+            let parser = composeAnd parseA parseB
             let result = parser "dbc"
             let expected = Error "dbc"
             Assert.Equal(expected, result)
 
         [<Fact>]
         let ``Fails when the second parser fails`` () =
-            let p0 = pChar 'a'
-            let p1 = pChar 'b'
-            let parser = composeAnd p0 p1
+            let parser = composeAnd parseA parseB
             let result = parser "adc"
             let expected = Error "dc"
             Assert.Equal(expected, result)
 
-
         [<Fact>]
         let ``Picks the first result when it succeeds`` () =
-            let p0 = pChar 'a'
-            let p1 = pChar 'b'
-            let parser = composeOr p0 p1
+            let parser = composeOr parseA parseB
             let result = parser "abc"
             let expected = Ok ('a', "bc")
             Assert.Equal(expected, result)
 
-
         [<Fact>]
         let ``Picks the second result when the first fails and the second succeeds`` () =
-            let p0 = pChar 'a'
-            let p1 = pChar 'b'
-            let parser = composeOr p0 p1
+            let parser = composeOr parseA parseB
             let result = parser "bcd"
             let expected = Ok ('b', "cd")
             Assert.Equal(expected, result)
 
         [<Fact>]
         let ``Fails when both fails`` () =
-            let p0 = pChar 'a'
-            let p1 = pChar 'b'
-            let parser = composeOr p0 p1
+            let parser = composeOr parseA parseB
             let result = parser "cde"
             let expected = Error "cde"
             Assert.Equal(expected, result)
