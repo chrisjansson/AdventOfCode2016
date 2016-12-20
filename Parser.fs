@@ -43,27 +43,31 @@ let ``Fails parsing empty string``() =
 
 module Combinators = 
 
-    let composeAnd p0 p1 s =
-        match run p0 s with
-        | Ok (result1, remaining1) ->
-            match run p1 remaining1 with
-            | Ok (result2, remaining2) ->
-                Ok ((result1, result2), remaining2)
+    let composeAnd p0 p1 =
+        let inner s =
+            match run p0 s with
+            | Ok (result1, remaining1) ->
+                match run p1 remaining1 with
+                | Ok (result2, remaining2) ->
+                    Ok ((result1, result2), remaining2)
+                | Error m -> Error m
             | Error m -> Error m
-        | Error m -> Error m
+        Parser inner
 
-    let composeOr p0 p1 s =
-        match run p0 s with
-        | Error _ -> 
-            run p1 s
-        | r -> r
+    let composeOr p0 p1 =
+        let inner s =   
+            match run p0 s with
+            | Error _ -> 
+                run p1 s
+            | r -> r
+        Parser inner
     
     let composeOrList parsers s =
         let rec inner acc parsers =
             match parsers with
             | [] -> acc
             | parser :: tail -> inner (composeOr acc parser) tail
-        inner (List.head parsers) (List.tail parsers)
+        (inner (List.head parsers) (List.tail parsers)) s
         
 
     module Tests =
@@ -74,41 +78,41 @@ module Combinators =
         [<Fact>]
         let ``Combines the result of two parsers``() =
             let parser = composeAnd parseA parseB
-            let result = parser "abc"
+            let result = run parser "abc"
             let expected = Ok (('a', 'b'), "c")
             Assert.Equal(expected, result)
 
         [<Fact>]
         let ``Fails when the first parser fails`` () =
             let parser = composeAnd parseA parseB
-            let result = parser "dbc"
+            let result = run parser "dbc"
             let expected = Error "dbc"
             Assert.Equal(expected, result)
 
         [<Fact>]
         let ``Fails when the second parser fails`` () =
             let parser = composeAnd parseA parseB
-            let result = parser "adc"
+            let result = run parser "adc"
             let expected = Error "dc"
             Assert.Equal(expected, result)
 
         [<Fact>]
         let ``Picks the first result when it succeeds`` () =
             let parser = composeOr parseA parseB
-            let result = parser "abc"
+            let result = run parser "abc"
             let expected = Ok ('a', "bc")
             Assert.Equal(expected, result)
 
         [<Fact>]
         let ``Picks the second result when the first fails and the second succeeds`` () =
             let parser = composeOr parseA parseB
-            let result = parser "bcd"
+            let result = run parser "bcd"
             let expected = Ok ('b', "cd")
             Assert.Equal(expected, result)
 
         [<Fact>]
         let ``Fails when both fails`` () =
             let parser = composeOr parseA parseB
-            let result = parser "cde"
+            let result = run parser "cde"
             let expected = Error "cde"
             Assert.Equal(expected, result)
