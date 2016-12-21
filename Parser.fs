@@ -53,6 +53,20 @@ module Combinators =
                 | Error m -> Error m
             | Error m -> Error m
         Parser inner
+        
+    let composeAndLeft p0 p1 = 
+        let inner s =
+            match run (composeAnd p0 p1) s with
+            | Ok ((r1, r2), remaining) -> Ok (r1, remaining)
+            | Error m -> Error m
+        Parser inner    
+
+    let composeAndRight p0 p1 =
+        let inner s =
+                match run (composeAnd p0 p1) s with
+                | Ok ((r1, r2), remaining) -> Ok (r2, remaining)
+                | Error m -> Error m
+        Parser inner
 
     let composeOr p0 p1 =
         let inner s =   
@@ -62,12 +76,12 @@ module Combinators =
             | r -> r
         Parser inner
     
-    let composeOrList parsers s =
+    let composeOrList (parsers:Parser<_> list) =
         let rec inner acc parsers =
             match parsers with
             | [] -> acc
             | parser :: tail -> inner (composeOr acc parser) tail
-        (inner (List.head parsers) (List.tail parsers)) s
+        inner (List.head parsers) (List.tail parsers)
         
 
     module Tests =
@@ -115,4 +129,15 @@ module Combinators =
             let parser = composeOr parseA parseB
             let result = run parser "cde"
             let expected = Error "cde"
+            Assert.Equal(expected, result)
+
+        [<Theory>]
+        [<InlineData("a42", 'a', "42")>]
+        [<InlineData("b42", 'b', "42")>]
+        [<InlineData("c42", 'c', "42")>]
+        let ``Parses a or b or c`` (input:string, parsed:char, remaining:string) =
+            let parseC = pChar 'c'
+            let parser = composeOrList [ parseA; parseB; parseC ]
+            let result = run parser input
+            let expected = Ok (parsed, remaining)
             Assert.Equal(expected, result)
