@@ -19,6 +19,8 @@ let pChar char =
             Error s
     Parser innerFn
     
+let returnParser x =
+    Parser (fun s -> (x, s))
 
 
 [<Fact>]
