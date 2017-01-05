@@ -24,6 +24,12 @@ let returnP x =
         Ok (x, s)
     Parser (inner)
 
+let mapP f p =
+    let inner s =
+        match run p s with
+        | Ok (res, r) -> Ok(f res, r)
+        | Error m -> Error m
+    Parser inner
 
 [<Fact>]
 let ``Parses single character``() =
@@ -144,4 +150,12 @@ module Combinators =
             let parser = composeOrList [ parseA; parseB; parseC ]
             let result = run parser input
             let expected = Ok (parsed, remaining)
+            Assert.Equal(expected, result)
+
+        [<Fact>]
+        let ``Maps parser result with supplied function`` =
+            let parser = composeAnd parseA parseB
+            let mapper (a:char, b:char) = [a;b]
+            let result = run ((mapP mapper) parser) "abc"
+            let expected = Ok(['a';'b'], "c")
             Assert.Equal(expected, result)
