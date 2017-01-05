@@ -7,7 +7,6 @@ type Parser<'T> = Parser of (string -> Result<'T * string, string>)
 let run p s =
     let (Parser fn) = p
     fn s
-
 let pChar char =
     let innerFn s =
         if System.String.IsNullOrEmpty(s) then
@@ -153,9 +152,16 @@ module Combinators =
             Assert.Equal(expected, result)
 
         [<Fact>]
-        let ``Maps parser result with supplied function`` =
+        let ``Maps parser result with supplied function`` () =
             let parser = composeAnd parseA parseB
             let mapper (a:char, b:char) = [a;b]
             let result = run ((mapP mapper) parser) "abc"
             let expected = Ok(['a';'b'], "c")
+            Assert.Equal(expected, result)
+
+        [<Fact>]
+        let ``Retuns constant regardless of input`` () =
+            let parser = returnP 123
+            let result = run parser "woot"
+            let expected = Ok (123, "woot")
             Assert.Equal(expected, result)
