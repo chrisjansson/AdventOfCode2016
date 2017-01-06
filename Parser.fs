@@ -41,6 +41,9 @@ let applyP pf pa =
         | Error e -> Error e
     Parser pb
 
+let lift2 f pa =
+    applyP (applyP (returnP f) pa)
+
 [<Fact>]
 let ``Parses single character``() =
     let result = run (pChar 'a') "abc"
@@ -201,3 +204,10 @@ module Combinators =
             let res1 = run p1 ""
             let res2 = run p2 ""
             Assert.Equal(res1, res2)
+
+        [<Fact>]
+        let ``Lift2 lifts + operator``() =
+            let addP = lift2 (+)
+            let result = run (addP (returnP 1) (returnP 3)) ""
+            let expected = Ok(4, "")
+            Assert.Equal(expected, result)
