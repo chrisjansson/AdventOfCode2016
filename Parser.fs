@@ -30,6 +30,17 @@ let mapP f p =
         | Error m -> Error m
     Parser inner
 
+let applyP pf pa =
+    let pb s =
+        match (run pf s) with
+        | Ok(f, rem1) ->
+            match (run pa rem1) with
+            | Ok(a, rem2) ->
+                Ok (f a, rem2)
+            | Error e -> Error e
+        | Error e -> Error e
+    Parser pb
+
 [<Fact>]
 let ``Parses single character``() =
     let result = run (pChar 'a') "abc"
@@ -165,3 +176,28 @@ module Combinators =
             let result = run parser "woot"
             let expected = Ok (123, "woot")
             Assert.Equal(expected, result)
+
+        [<Fact>]
+        let ``Apply elevated function to elevated value`` () =
+            let add3 x = x + 3
+            let parserToApply = returnP add3
+            let parser = applyP parserToApply
+            let parserValueToApply = mapP (string>>int) (pChar '5')
+            let result = run (parser parserValueToApply) "5abc"
+            let expected = Ok(8, "abc")
+            Assert.Equal(expected, result)
+
+        [<Fact>]
+        let ``Follows applicative functor law f(x) elevated equals elevated x applied to elevated f`` () =
+            let f x = x + 7
+            let x = 5
+            let y = f x
+            let p1 = returnP y
+
+            let pF = returnP f
+            let pX = returnP x
+            let p2 = (applyP pF) pX
+
+            let res1 = run p1 ""
+            let res2 = run p2 ""
+            Assert.Equal(res1, res2)
