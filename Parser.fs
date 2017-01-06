@@ -44,6 +44,17 @@ let applyP pf pa =
 let lift2 f pa =
     applyP (applyP (returnP f) pa)
 
+let rec inSequence parsers =
+    let append i l = i :: l  
+    let appendP = lift2 append
+    let rec inner parsers acc =
+        match parsers with
+        | [] -> acc
+        | head::tail ->
+            let acc2 = appendP head acc
+            inner tail acc2
+    inner (parsers |> List.rev) (returnP [])
+
 [<Fact>]
 let ``Parses single character``() =
     let result = run (pChar 'a') "abc"
@@ -210,4 +221,12 @@ module Combinators =
             let addP = lift2 (+)
             let result = run (addP (returnP 1) (returnP 3)) ""
             let expected = Ok(4, "")
+            Assert.Equal(expected, result)
+
+        [<Fact>]
+        let ``Parses characters in sequence``() =
+            let p = inSequence [ parseA; parseB; (pChar 'c') ]
+            let result = run p "abcd"
+            printfn "%A" result
+            let expected = Ok(['a';'b';'c'], "d")
             Assert.Equal(expected, result)
