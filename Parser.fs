@@ -55,6 +55,12 @@ let rec inSequence parsers =
             inner tail acc2
     inner (parsers |> List.rev) (returnP [])
 
+let pString (s:string) =
+    Seq.map pChar s
+        |> Seq.toList
+        |> inSequence
+        |> mapP string
+
 [<Fact>]
 let ``Parses single character``() =
     let result = run (pChar 'a') "abc"
@@ -227,6 +233,21 @@ module Combinators =
         let ``Parses characters in sequence``() =
             let p = inSequence [ parseA; parseB; (pChar 'c') ]
             let result = run p "abcd"
-            printfn "%A" result
+            
             let expected = Ok(['a';'b';'c'], "d")
+            Assert.Equal(expected, result)
+
+        [<Fact>]
+        let ``Parses matching string``() =
+            let parser = pString "Hello world"
+            let result = run parser "Hello world abc"
+            printfn "%A" result
+            let expected = Ok("Hello world", " abc")
+            Assert.Equal(expected, result)
+
+        [<Fact>]
+        let ``Does not parse non matching string``() =
+            let parser = pString "Hello world"
+            let result = run parser "Hell world"
+            let expected = Error("Hell world")
             Assert.Equal(expected, result)
