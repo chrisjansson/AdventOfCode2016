@@ -1,7 +1,5 @@
 module Parser
 
-open Xunit
-
 type Parser<'T> = Parser of (string -> Result<'T * string, string>)
 
 let run p s =
