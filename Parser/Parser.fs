@@ -59,7 +59,6 @@ let pString (s:string) =
         |> inSequence
         |> mapP string
 
-
 module Combinators = 
     let composeAnd p0 p1 =
         let inner s =
@@ -100,5 +99,3 @@ module Combinators =
             | [] -> acc
             | parser :: tail -> inner (composeOr acc parser) tail
         inner (List.head parsers) (List.tail parsers)
-        
-        
