@@ -146,5 +146,5 @@ type ParserTests() =
     let ``Does not parse non matching string``() =
         let parser = pString "Hello world"
         let result = run parser "Hell world"
-        let expected = Error("Hell world")
+        let expected = Error(" world")
         Assert.Equal(expected, result)
