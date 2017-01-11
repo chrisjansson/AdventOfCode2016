@@ -138,7 +138,6 @@ type ParserTests() =
     let ``Parses matching string``() =
         let parser = pString "Hello world"
         let result = run parser "Hello world abc"
-        printfn "%A" result
         let expected = Ok("Hello world", " abc")
         Assert.Equal(expected, result)
 
