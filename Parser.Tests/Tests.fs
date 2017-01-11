@@ -130,7 +130,6 @@ type ParserTests() =
     let ``Parses characters in sequence``() =
         let p = inSequence [ parseA; parseB; (pChar 'c') ]
         let result = run p "abcd"
-        
         let expected = Ok(['a';'b';'c'], "d")
         Assert.Equal(expected, result)
 
