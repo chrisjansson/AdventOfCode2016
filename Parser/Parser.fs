@@ -5,13 +5,14 @@ type Parser<'T> = Parser of (string -> Result<'T * string, string>)
 let run p s =
     let (Parser fn) = p
     fn s
-let pChar char =
+    
+let pChar c =
     let innerFn s =
         if System.String.IsNullOrEmpty(s) then
             Error ""
-        else if s.[0] = char then
+        else if s.[0] = c then
             let remaining = s.[1..]
-            Ok (char, remaining)
+            Ok (c, remaining)
         else
             Error s
     Parser innerFn
@@ -55,9 +56,9 @@ let rec inSequence parsers =
 
 let pString (s:string) =
     Seq.map pChar s
-        |> Seq.toList
-        |> inSequence
-        |> mapP string
+    |> Seq.toList
+    |> inSequence
+    |> mapP (fun (s:char list) -> new string(List.toArray s))
 
 module Combinators = 
     let composeAnd p0 p1 =
