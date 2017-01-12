@@ -140,9 +140,15 @@ type ParserTests() =
         let expected = Ok("Hello world", " abc")
         Assert.Equal(expected, result)
 
+    let assertEqual expected actual =
+        if expected = actual then
+            ()        
+        else
+            failwithf "\nExpected:\n%A\n\nActual:\n%A" expected actual
+
     [<Fact>]
     let ``Does not parse non matching string``() =
         let parser = pString "Hello world"
-        let result = run parser "Hell world"
+        let result = run parser "Heall world"
         let expected = Error(" world")
-        Assert.Equal(expected, result)
+        assertEqual expected result
