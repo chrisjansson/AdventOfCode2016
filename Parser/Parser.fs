@@ -100,3 +100,20 @@ module Combinators =
             | [] -> acc
             | parser :: tail -> inner (composeOr acc parser) tail
         inner (List.head parsers) (List.tail parsers)
+    
+    let atleastOnce parser = 
+        let inner s =
+            let rec parse accumulatedResult s =
+                match run parser s with
+                | Ok(result, rest) -> 
+                    let newResult = result :: accumulatedResult
+                    parse newResult rest
+                | Error(m) -> 
+                    (accumulatedResult, s)
+            
+            match parse [] s with
+            | ([], _) -> Error(s)
+            | (matches, rest) -> Ok(matches, rest)
+
+        Parser inner
+        

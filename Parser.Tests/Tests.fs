@@ -144,6 +144,27 @@ type ParserTests() =
     [<Fact>]
     let ``Does not parse non matching string``() =
         let parser = pString "Hello world"
-        let result = run parser "Heall world"
+        let result = run parser "Hell world"
         let expected = Error(" world")
+        expected @= result
+
+    [<Fact>]
+    let ``Matches parser once``() =
+        let parser = (pString >> atleastOnce) "abc"
+        let result = run parser "abcdef"
+        let expected = Ok(["abc"], "def")
+        expected @= result
+
+    [<Fact>]
+    let ``Fails when it matches zero times`` () =
+        let parser = (pString >> atleastOnce) "abc"
+        let result = run parser "acbcdef"
+        let expected = Error("acbcdef")
+        expected @= result
+
+    [<Fact>]
+    let ``Matches parser many times``() =
+        let parser = (pString >> atleastOnce) "abc"
+        let result = run parser "abcabcabcdef"
+        let expected = Ok(["abc"; "abc"; "abc"], "def")
         expected @= result
