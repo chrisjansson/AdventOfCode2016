@@ -116,4 +116,15 @@ module Combinators =
             | (matches, rest) -> Ok(matches, rest)
 
         Parser inner
-        
+    
+    let many parser =
+        let inner s = 
+            let rec parse accumulatedResult s =
+                match run parser s with
+                | Ok(result, rest) -> 
+                    let newResult = result :: accumulatedResult
+                    parse newResult rest
+                | Error(m) -> 
+                    Ok (accumulatedResult, s)
+            parse [] s
+        Parser inner

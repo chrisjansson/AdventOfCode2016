@@ -168,3 +168,25 @@ type ParserTests() =
         let result = run parser "abcabcabcdef"
         let expected = Ok(["abc"; "abc"; "abc"], "def")
         expected @= result
+
+
+    [<Fact>]
+    let ``Matches parser once``() =
+        let parser = (pString >> many) "abc"
+        let result = run parser "abcdef"
+        let expected = Ok(["abc"], "def")
+        expected @= result
+
+    [<Fact>]
+    let ``Succeeds when it matches zero times`` () =
+        let parser = (pString >> many) "abc"
+        let result = run parser "acbcdef"
+        let expected = Ok([], "acbcdef")
+        expected @= result
+
+    [<Fact>]
+    let ``Matches parser many times``() =
+        let parser = (pString >> many) "abc"
+        let result = run parser "abcabcabcdef"
+        let expected = Ok(["abc"; "abc"; "abc"], "def")
+        expected @= result
